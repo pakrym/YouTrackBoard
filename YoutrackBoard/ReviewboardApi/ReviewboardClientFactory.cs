@@ -4,10 +4,63 @@ using System.Threading.Tasks;
 
 namespace YoutrackBoard.ReviewboardApi
 {
+    using System;
     using System.Configuration;
+    using System.Linq.Expressions;
     using System.Net;
+    using System.Runtime.Caching;
+
+    using Castle.DynamicProxy;
 
     using RestSharp;
+
+    class CacheInterceptor : IInterceptor
+    {
+        public void Intercept(IInvocation invocation)
+        {
+            var key = GenerateKey(invocation);
+            var cachedValue = MemoryCache.Default[key];
+
+            if (cachedValue == null)
+            {     
+                invocation.Proceed();
+                var result = invocation.ReturnValue;
+                var task = result as Task;
+                if (task != null)
+                {
+                    task.ContinueWith(
+                        (task1, o) =>
+                            {
+                                dynamic t = task1;
+                                MemoryCache.Default[(string)o] = t.Result;
+                            }, key);
+                }
+                else
+                {
+                    MemoryCache.Default[key] = invocation.ReturnValue;
+                }
+            }
+            else
+            {
+
+                if (typeof(Task).IsAssignableFrom(invocation.Method.ReturnType))
+                {
+                    invocation.ReturnValue = Activator.CreateInstance(
+                        typeof(Task<>).MakeGenericType(cachedValue.GetType()),
+                        Expression.Lambda(typeof(Func<>).MakeGenericType(cachedValue.GetType()), Expression.Constant(cachedValue)).Compile());
+                }
+                else
+                {
+                    invocation.ReturnValue = cachedValue;
+                }
+            }
+        }
+
+        private string GenerateKey(IInvocation invocation)
+        {
+            return invocation.Method.DeclaringType.Name + invocation.Method.Name + string.Join(",", invocation.Arguments.Select(Convert.ToString));
+        }
+    }
 
     class ReviewRepository
     {
@@ -18,24 +71,18 @@ namespace YoutrackBoard.ReviewboardApi
             this._reviewboardClientFactory = reviewboardClientFactory;
         }
 
-        public async Task<List<ReviewRequest>> GetReviewsTo()
+        public async Task<List<ReviewRequest>> GetReviewsTo(string user)
         {
             var client = _reviewboardClientFactory.CreateConnection();
-            var result = await client.ExecuteTaskAsync<ReviewRequestResponse>(new GetReviewRequests());
+            var result = await client.ExecuteTaskAsync<ReviewRequestResponse>(new GetReviewRequests(null, user));
             return result.Data.ReviewRequests;
         }
 
-        public async Task<List<ReviewRequest>> GetReviewsFrom()
+        public async Task<List<ReviewRequest>> GetReviewsFrom(string user)
         {
-            
-        }
-    }
-
-    internal class GetReviewRequests : RestRequest
-    {
-        public GetReviewRequests()
-            : base("/api/review-requests/")
-        {
+            var client = _reviewboardClientFactory.CreateConnection();
+            var result = await client.ExecuteTaskAsync<ReviewRequestResponse>(new GetReviewRequests(user, null));
+            return result.Data.ReviewRequests;
         }
     }
 

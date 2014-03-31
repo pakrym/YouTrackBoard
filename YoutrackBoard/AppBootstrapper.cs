@@ -34,7 +34,7 @@ namespace YoutrackBoard
 
             kernel.Bind<IShell>().To<ShellViewModel>().InSingletonScope(); ;
             kernel.Bind<IWindowManager>().To<WindowManager>();
-            kernel.Bind<ConnectionFactory>().ToSelf().InSingletonScope();
+            kernel.Bind<YouTrackClientFactory>().ToSelf().InSingletonScope();
             return kernel;
         }
 

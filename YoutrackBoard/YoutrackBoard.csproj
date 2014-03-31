@@ -119,26 +119,35 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Api\GetAllProjectsRequest.cs" />
-    <Compile Include="Api\GetIssueWorkItemsRequest.cs" />
-    <Compile Include="Api\Person.cs" />
-    <Compile Include="Api\Project.cs" />
-    <Compile Include="Api\ProjectSprints.cs" />
-    <Compile Include="Api\Sprint.cs" />
-    <Compile Include="Api\Subvalue.cs" />
-    <Compile Include="Api\WorkItem.cs" />
-    <Compile Include="Api\WorkItemAuthor.cs" />
+    <Compile Include="ReviewboardApi\ReviewboardAuthentificateRequest.cs" />
+    <Compile Include="ReviewboardApi\ReviewboardClientFactory.cs" />
+    <Compile Include="ReviewboardApi\ReviewRequest.cs" />
+    <Compile Include="ReviewboardApi\ReviewRequestResponse.cs" />
+    <Compile Include="YouTrackApi\GetAllProjectsRequest.cs" />
+    <Compile Include="YouTrackApi\GetIssueWorkItemsRequest.cs" />
+    <Compile Include="YouTrackApi\Person.cs" />
+    <Compile Include="YouTrackApi\Project.cs" />
+    <Compile Include="YouTrackApi\ProjectSprints.cs" />
+    <Compile Include="YouTrackApi\Sprint.cs" />
+    <Compile Include="YouTrackApi\Subvalue.cs" />
+    <Compile Include="YouTrackApi\TimeSpanUtilities.cs" />
+    <Compile Include="YouTrackApi\WorkItem.cs" />
+    <Compile Include="YouTrackApi\WorkItemAuthor.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AppBootstrapper.cs" />
-    <Compile Include="Api\ConnectionFactory.cs" />
+    <Compile Include="YouTrackApi\YouTrackClientFactory.cs" />
     <Compile Include="IShell.cs" />
-    <Compile Include="Api\Issue.cs" />
-    <Compile Include="Api\IssueField.cs" />
-    <Compile Include="Api\IssueRepository.cs" />
-    <Compile Include="Api\IssueResponce.cs" />
+    <Compile Include="YouTrackApi\Issue.cs" />
+    <Compile Include="YouTrackApi\IssueField.cs" />
+    <Compile Include="YouTrackApi\IssueRepository.cs" />
+    <Compile Include="YouTrackApi\IssueResponce.cs" />
+    <Compile Include="IssueStatisticsGroupView.xaml.cs">
+      <DependentUpon>IssueStatisticsGroupView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="IssueStatisticsGroupViewModel.cs" />
     <Compile Include="IssueStatisticsView.xaml.cs">
       <DependentUpon>IssueStatisticsView.xaml</DependentUpon>
     </Compile>
@@ -155,12 +164,12 @@
       <DependentUpon>ProjectDetailsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ProjectDetailsViewModel.cs" />
-    <Compile Include="Api\ProjectRepository.cs" />
+    <Compile Include="YouTrackApi\ProjectRepository.cs" />
     <Compile Include="ProjectSelectorView.xaml.cs">
       <DependentUpon>ProjectSelectorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ProjectSelectorViewModel.cs" />
-    <Compile Include="Api\SearchIssueRequest.cs" />
+    <Compile Include="YouTrackApi\SearchIssueRequest.cs" />
     <Compile Include="ShellView.xaml.cs">
       <DependentUpon>ShellView.xaml</DependentUpon>
     </Compile>
@@ -199,6 +208,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="IssueStatisticsGroupView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="IssueStatisticsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -224,6 +237,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SprintSelectorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Theme\Default.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

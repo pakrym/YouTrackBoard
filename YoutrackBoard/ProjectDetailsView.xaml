@@ -6,29 +6,17 @@
              xmlns:cal="http://www.caliburnproject.org"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <UserControl.Resources>
-        
-    </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
+        
         <TextBlock Name="Name" FontSize="{StaticResource HeaderFontSize}" Grid.Row="0"/>
-        <TabControl Grid.Row="1" ItemsSource="{Binding PersonDetails}">
-            <TabControl.ContentTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <ContentControl cal:Bind.Model="{Binding}" Height="300" Width="400"/>
-                    </StackPanel>
-                </DataTemplate>
-            </TabControl.ContentTemplate>
-            <TabControl.ItemTemplate>
-                <DataTemplate>
-                     <TextBlock Text="{Binding Person.Name}"></TextBlock>
-                </DataTemplate>    
-            </TabControl.ItemTemplate>
-        </TabControl>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible">
+            <ItemsControl Name="PersonDetails" Margin="10"></ItemsControl>
+        </ScrollViewer>
         
     </Grid>
 </UserControl>

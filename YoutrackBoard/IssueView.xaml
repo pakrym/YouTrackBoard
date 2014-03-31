@@ -5,8 +5,36 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter  Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="Margin" Value="2"></Setter>
+        </Style>
+    </UserControl.Resources>
     <StackPanel Orientation="Horizontal">
-        <TextBlock FontWeight="Bold" Text="{Binding Issue.Id}" Margin="2"></TextBlock>
-        <TextBlock Text="{Binding Issue.Summary}" Margin="2"></TextBlock>
+        <Button Content="{Binding Issue.Id}" Margin="2" Style="{DynamicResource IssueButton}" Name="Navigate"/>
+        <TextBlock Text="{Binding Issue.Summary}" ></TextBlock>
+        <TextBlock FontStyle="Italic" Foreground="DimGray">
+            <Run Text="{Binding TimeSpent, Mode=OneWay}"></Run>
+            <Run>/</Run>
+            <Run Text="{Binding Estimation, Mode=OneWay}"></Run>
+        </TextBlock>
+        <ItemsControl Name="Tags">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"></StackPanel>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Style="{DynamicResource IssueTagsBorder}" VerticalAlignment="Center" Padding="1">
+                        <TextBlock Text="{Binding}">
+                        </TextBlock>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        
+
     </StackPanel>
 </UserControl>

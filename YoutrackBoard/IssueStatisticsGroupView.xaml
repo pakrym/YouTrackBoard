@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="YoutrackBoard.IssueStatisticsView"
+﻿<UserControl x:Class="YoutrackBoard.IssueStatisticsGroupView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -6,7 +6,8 @@
              xmlns:cal="http://www.caliburnproject.org"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-        <ItemsControl Name="Groups">
-        </ItemsControl>
-    
+    <StackPanel>
+        <TextBlock Visibility="{Binding Visible}" Text="{Binding Name}" FontSize="18"></TextBlock>
+        <ItemsControl Name="Issues" Margin="5"></ItemsControl>
+    </StackPanel>
 </UserControl>

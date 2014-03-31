@@ -23,7 +23,7 @@ namespace YoutrackBoard
 
         public Person[] People
         {
-            get { return AssigneesFullName.Zip(AssigneesLogin, (n, l) => new Person(n, l)).ToArray(); }
+            get { return AssigneesFullName.Zip(AssigneesLogin, (n, l) => new Person(n, l)).Concat(new[] {new Person("Root","root"), }).ToArray(); }
         }
     }
 }

@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 
 namespace YoutrackBoard
 {
+    using System;
+
     internal class Issue
     {
         public string Id { get; set; }
@@ -20,11 +22,36 @@ namespace YoutrackBoard
             get { return GetField("summary"); }
         }
 
-        public int Estimation
+        public DateTime Resolved
         {
-            get { return GetFieldAsFirst<int>("Estimation"); }
+            get { return this.GetFieldAs<long>("resolved").ToDateTime(); }
+        }
+        public DateTime Created
+        {
+            get { return GetFieldAs<long>("created").ToDateTime(); }
+        }
+        public DateTime Updated
+        {
+            get { return GetFieldAs<long>("updated").ToDateTime();; }
         }
 
+        public TimeSpan Estimation
+        {
+            get { return TimeSpan.FromMinutes(GetFieldAsFirst<int>("Estimation")); }
+        }
+
+        public string State
+        {
+            get
+            {
+                return this.GetFieldAsFirst<string>("State");
+            } 
+        }
+
+        public TimeSpan TimeSpent
+        {
+            get { return TimeSpan.FromMinutes(GetFieldAsFirst<int>("Spent Time")); }
+        }
 
         private T GetFieldAs<T>(string name) 
         {
@@ -46,13 +73,6 @@ namespace YoutrackBoard
             return filed == null? string.Empty: filed.Value;
         }
 
-        private int? GetFieldAsInt(string name)
-        {
-            var value = GetField(name);
-            if (string.IsNullOrWhiteSpace(value)) return null;
-
-            else return int.Parse(value.Trim('[', '"',']'));
-        }
     }
 
     internal class Assignee

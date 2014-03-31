@@ -9,24 +9,28 @@ using ReactiveUI;
 
 namespace YoutrackBoard
 {
+    using YoutrackBoard.ReviewboardApi;
+
     class ProjectDetailsViewModel: Screen
     {
         private Project _project;
         private readonly Sprint _sprint;
         private readonly IssueRepository _issueRepository;
-
+        private readonly ReviewRepository _reviewRepository;
         private readonly ProjectRepository _projectRepository;
 
         public ProjectDetailsViewModel(
             Project project, 
             Sprint sprint, 
             IssueRepository issueRepository,
+            ReviewRepository reviewRepository,
             Func<Person, PersonDetailsViewModel> personDetailsFactory
             )
         {
             _project = project;
             _sprint = sprint;
             _issueRepository = issueRepository;
+            this._reviewRepository = reviewRepository;
 
             Name = _project.Name;
             PersonDetails = new ObservableCollection<PersonDetailsViewModel>(
@@ -63,8 +67,15 @@ namespace YoutrackBoard
                 var personViewModel = viewModels[group.Key];
                     personViewModel.SetWorkItems(group.ToArray());
             }
-            
-            
+
+            var reviews = await _reviewRepository.GetReviews();
+            foreach (var reviewRequest in reviews)
+            {
+                
+            }
+
+
+
         }
 
         public ObservableCollection<PersonDetailsViewModel> PersonDetails { get; set; }

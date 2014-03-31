@@ -6,16 +6,16 @@ namespace YoutrackBoard
     class IssueRepository
 
     {
-        private readonly ConnectionFactory _connectionFactory;
+        private readonly YouTrackClientFactory youTrackClientFactory;
 
-        public IssueRepository(ConnectionFactory connectionFactory)
+        public IssueRepository(YouTrackClientFactory youTrackClientFactory)
         {
-            _connectionFactory = connectionFactory;
+            this.youTrackClientFactory = youTrackClientFactory;
         }
 
         public async Task<List<Issue>> Search(Project project, Sprint sprint)
         {
-            var connection = _connectionFactory.CreateConnection();
+            var connection = this.youTrackClientFactory.CreateConnection();
             var result = await connection.ExecuteTaskAsync<IssueResponce>(
                 new SearchIssueRequest(string.Format("#{0} Fix versions: {1}", project.Name, sprint.Name)));
 
@@ -24,7 +24,7 @@ namespace YoutrackBoard
 
         public async Task<List<WorkItem>> GetWorkItems(Issue issue)
         {
-           var connection = _connectionFactory.CreateConnection();
+           var connection = this.youTrackClientFactory.CreateConnection();
            var result = await connection.ExecuteTaskAsync < List<WorkItem>>(new GetIssueWorkItemsRequest(issue));
 
             return result.Data;      

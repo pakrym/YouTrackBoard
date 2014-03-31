@@ -6,12 +6,12 @@ using RestSharp;
 
 namespace YoutrackBoard
 {
-    class ConnectionFactory
+    class YouTrackClientFactory
     {
         private RestClient _client;
         private bool _hasAuth = false;
 
-        public ConnectionFactory()
+        public YouTrackClientFactory()
         {
             _client = new RestClient(ConfigurationManager.AppSettings["url"]);
             _client.CookieContainer = new CookieContainer();

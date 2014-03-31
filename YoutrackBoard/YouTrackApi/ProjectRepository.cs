@@ -9,17 +9,17 @@ namespace YoutrackBoard
     class UserRepository
     {
         private Regex _avatarRegex = new Regex("(\\/_persistent\\/.*?)\"");
-        private ConnectionFactory _connectionFactory;
+        private YouTrackClientFactory youTrackClientFactory;
 
-        public UserRepository(ConnectionFactory connectionFactory)
+        public UserRepository(YouTrackClientFactory youTrackClientFactory)
         {
-            _connectionFactory = connectionFactory;
+            this.youTrackClientFactory = youTrackClientFactory;
         }
 
         public async Task<string> GetAvatar(Person person)
         {
             return null;
-            var clietn = _connectionFactory.CreateConnection();
+            var clietn = this.youTrackClientFactory.CreateConnection();
             var result = await clietn.ExecuteTaskAsync(new GetAvatarRequest(person));
             var match = _avatarRegex.Match(result.Content);
             if (match.Success)
@@ -54,16 +54,16 @@ namespace YoutrackBoard
 
     class ProjectRepository
     {
-        private readonly ConnectionFactory _connectionFactory;
+        private readonly YouTrackClientFactory youTrackClientFactory;
 
-        public ProjectRepository(ConnectionFactory connectionFactory)
+        public ProjectRepository(YouTrackClientFactory youTrackClientFactory)
         {
-            _connectionFactory = connectionFactory;
+            this.youTrackClientFactory = youTrackClientFactory;
         }
 
         public async Task<List<Project>> GetAll()
         {
-            var connection = _connectionFactory.CreateConnection();
+            var connection = this.youTrackClientFactory.CreateConnection();
             var result = await connection.ExecuteTaskAsync<List<Project>>(new GetAllProjectsRequest(false));
 
             return result.Data;
@@ -72,7 +72,7 @@ namespace YoutrackBoard
 
         public async Task<List<Sprint>> GetSprints(Project project)
         {
-            var connection = _connectionFactory.CreateConnection();
+            var connection = this.youTrackClientFactory.CreateConnection();
             var result = await connection.ExecuteTaskAsync<ProjectSprints>(new GetProjectsSprintsRequest(project));
 
             return result.Data.Sprint;

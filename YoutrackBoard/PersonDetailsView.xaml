@@ -15,9 +15,11 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Image Name="Avatar" Height="48" Width="48" Grid.Row="0" />
-        <TextBlock Text="{Binding Person.Name}" FontSize="20" Grid.Column="1" Grid.Row="0" ></TextBlock>
-        <ContentControl Grid.Row="1" Grid.ColumnSpan="2" Name="IssueStatistics"></ContentControl>
+        <Border Height="48" Width="48" Background="{Binding IconBrush}">
+            <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="25" Name="IconText"></TextBlock>
+        </Border>
+        <TextBlock Text="{Binding Person.Name}" FontSize="20" Grid.Column="1" Grid.Row="0" Margin="10,0,0,0" VerticalAlignment="Center" ></TextBlock>
+        <ContentControl Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Name="IssueStatistics"></ContentControl>
         
         
     </Grid>

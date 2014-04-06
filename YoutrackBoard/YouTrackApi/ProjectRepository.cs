@@ -6,6 +6,8 @@ using RestSharp;
 
 namespace YoutrackBoard
 {
+    using System;
+
     class UserRepository
     {
         private Regex _avatarRegex = new Regex("(\\/_persistent\\/.*?)\"");
@@ -52,7 +54,7 @@ namespace YoutrackBoard
         }
     }
 
-    class ProjectRepository
+    class ProjectRepository : IRepository
     {
         private readonly YouTrackClientFactory youTrackClientFactory;
 
@@ -61,23 +63,41 @@ namespace YoutrackBoard
             this.youTrackClientFactory = youTrackClientFactory;
         }
 
-        public async Task<List<Project>> GetAll()
+        public List<Project> GetAll()
         {
             var connection = this.youTrackClientFactory.CreateConnection();
-            var result = await connection.ExecuteTaskAsync<List<Project>>(new GetAllProjectsRequest(false));
-
+            var result = connection.Execute<List<Project>>(new GetAllProjectsRequest(false));
             return result.Data;
-
         }
 
-        public async Task<List<Sprint>> GetSprints(Project project)
+        public IObservable<List<Project>> GetAllObservable()
+        {
+            return TaskObservable.Create(this.GetAll, this);
+        }
+
+        public List<Sprint> GetSprints(Project project)
         {
             var connection = this.youTrackClientFactory.CreateConnection();
-            var result = await connection.ExecuteTaskAsync<ProjectSprints>(new GetProjectsSprintsRequest(project));
+            var result = connection.Execute<ProjectSprints>(new GetProjectsSprintsRequest(project));
 
             return result.Data.Sprint;
         }
-    
+
+        public IObservable<List<Sprint>> GetSprintsObservable(Project project)
+        {
+            return TaskObservable.Create(()=>GetSprints(project), this);
+        }
+
+
+        public event EventHandler Refresh;
+
+        public void RefreshData()
+        {
+            if (this.Refresh != null)
+            {
+                this.Refresh(this, EventArgs.Empty);
+            }
+        }
     }
 
 

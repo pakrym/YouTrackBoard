@@ -5,7 +5,7 @@ using ReactiveUI;
 
 namespace YoutrackBoard
 {
-    internal class ShellViewModel: Conductor<Screen>.Collection.OneActive, IShell
+    internal class ShellViewModel : Conductor<object>.Collection.OneActive, IShell
     {
         private readonly Func<ProjectSelectorViewModel> _projectSelectorFactory;
 
@@ -32,9 +32,18 @@ namespace YoutrackBoard
             ActivateItem(Items[Items.Count-1]);
         }
 
-        public void Navigate(Screen screen)
+        public void Navigate(object screen)
         {
             ActivateItem(screen);
+        }
+
+        public void RefreshData()
+        {
+            var refreshable = this.ActiveItem as IRefreshable;
+            if (refreshable != null)
+            {
+                refreshable.Refresh();
+            }
         }
     }
 }

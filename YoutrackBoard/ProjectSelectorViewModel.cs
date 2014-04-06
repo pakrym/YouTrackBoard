@@ -8,12 +8,13 @@ using ReactiveUI;
 
 namespace YoutrackBoard
 {
-    internal class ProjectSelectorViewModel : Screen
+    internal class ProjectSelectorViewModel : ReactiveObject, IRefreshable
     {
         private readonly ProjectRepository _projectRepository;
         private readonly Func<Project, SprintSelectorViewModel> _sprintSelectorFactory;
         private readonly IShell _shell;
-        private List<Project> _allProjects;
+
+        private ObservableAsPropertyHelper<List<Project>> _allProjects;
         
 
         public ProjectSelectorViewModel(
@@ -26,35 +27,26 @@ namespace YoutrackBoard
             _projectRepository = projectRepository;
             _sprintSelectorFactory = sprintSelectorFactory;
             _shell = shell;
+
+            _projectRepository.GetAllObservable().
+                ToProperty(this, t => t.AllProjects, out _allProjects);
         
         }
 
         
-        protected override void OnInitialize()
-        {
-            base.OnInitialize();
-            LoadData();
-        }
-
-        private async void LoadData()
-        {
-            AllProjects = await _projectRepository.GetAll();
-        }
-
         public List<Project> AllProjects
         {
-            get { return _allProjects; }
-            set
-            {
-                if (Equals(value, _allProjects)) return;
-                _allProjects = value;
-                NotifyOfPropertyChange(() => AllProjects);
-            }
+            get { return _allProjects.Value; }
         }
 
         public void Select(Project p)
         {
-         _shell.Navigate(_sprintSelectorFactory(p));   
+            _shell.Navigate(_sprintSelectorFactory(p));   
+        }
+
+        public void Refresh()
+        {
+            _projectRepository.RefreshData();
         }
     }
 }

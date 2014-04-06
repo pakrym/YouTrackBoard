@@ -98,6 +98,7 @@
     <Reference Include="System.Reactive.Windows.Threading">
       <HintPath>..\packages\Rx-XAML.2.2.2\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.0.13.0.103-ALPHA\lib\net45\System.Windows.Interactivity.dll</HintPath>
@@ -119,6 +120,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="IRefreshable.cs" />
+    <Compile Include="ReviewboardApi\GetReviewRequests.cs" />
     <Compile Include="ReviewboardApi\ReviewboardAuthentificateRequest.cs" />
     <Compile Include="ReviewboardApi\ReviewboardClientFactory.cs" />
     <Compile Include="ReviewboardApi\ReviewRequest.cs" />

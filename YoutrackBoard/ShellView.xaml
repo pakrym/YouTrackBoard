@@ -9,7 +9,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-            <Button Style="{DynamicResource MetroCircleButtonStyle}" Name="Back">Back</Button>
+            <Button  Name="Back">Back</Button>
+            <Button  Name="RefreshData">Back</Button>
             <TextBlock Text="{Binding ActiveItem.DisplayName}"></TextBlock>
         </StackPanel>
         <controls:TransitioningContentControl Name="ActiveItem" Transition="Right" Grid.Row="1" />

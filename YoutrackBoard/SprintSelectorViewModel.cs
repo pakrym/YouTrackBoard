@@ -5,7 +5,11 @@ using Caliburn.Micro;
 
 namespace YoutrackBoard
 {
-    internal class SprintSelectorViewModel: Screen
+    using System.Collections.Generic;
+
+    using ReactiveUI;
+
+    internal class SprintSelectorViewModel: ReactiveObject
     {
         
         private readonly Project _project;
@@ -22,28 +26,19 @@ namespace YoutrackBoard
             _projectDetailsFactory = projectDetailsFactory;
             _projectRepository = projectRepository;
             _shell = shell;
-            AllSprints = new ObservableCollection<Sprint>();
-            
+
+            _projectRepository.GetSprintsObservable(_project).ToProperty(this, t => t.AllSprints, out allSprints);
         }
+        
+        private ObservableAsPropertyHelper<List<Sprint>> allSprints;
 
-        protected override void OnInitialize()
-        {
-            base.OnInitialize();
-            LoadData();
-        }
-
-
-        private async void LoadData()
-        {
-            var result = await _projectRepository.GetSprints(_project);
-            foreach (var sprint in result)
+        public List<Sprint> AllSprints 
+        { 
+            get
             {
-                AllSprints.Add(sprint);
-            }
-
+                return allSprints.Value;
+            } 
         }
-
-        public ObservableCollection<Sprint> AllSprints { get; private set; }
 
         public void Select(Sprint sprint)
         {

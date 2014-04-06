@@ -6,11 +6,13 @@ using Caliburn.Micro;
 namespace YoutrackBoard
 {
     using System.Linq;
+    using System.Reactive.Linq;
     using System.Windows.Media;
 
     internal class PersonDetailsViewModel:PropertyChangedBase
     {
         private readonly UserRepository _userRepository;
+        private readonly IssueRepository issueRepository;
         private readonly Func<IEnumerable<Issue>, IssueStatisticsViewModel> _issueStatisticsFactory;
         private string _avatar;
         private IssueStatisticsViewModel _issueStatistics;
@@ -18,7 +20,7 @@ namespace YoutrackBoard
         static PersonDetailsViewModel()
         {
             TileColors = new Brush[] {
-                 new SolidColorBrush(Color.FromRgb((byte)111,(byte)189,(byte)69)),
+                new SolidColorBrush(Color.FromRgb((byte)111,(byte)189,(byte)69)),
                 new SolidColorBrush(Color.FromRgb((byte)75,(byte)179,(byte)221)),
                 new SolidColorBrush(Color.FromRgb((byte)65,(byte)100,(byte)165)),
                 new SolidColorBrush(Color.FromRgb((byte)225,(byte)32,(byte)38)),
@@ -30,7 +32,7 @@ namespace YoutrackBoard
                 new SolidColorBrush(Color.FromRgb((byte)45,(byte)255,(byte)87)),
                 new SolidColorBrush(Color.FromRgb((byte)127,(byte)0,(byte)55))
             };
-             ColorRandom = new Random();
+            ColorRandom = new Random();
         }
 
         public Brush GetColor(string name)
@@ -42,21 +44,32 @@ namespace YoutrackBoard
 
         public static Brush[] TileColors { get; set; }
 
-        public PersonDetailsViewModel(Person person,
+        public PersonDetailsViewModel(Project project, 
+            Sprint sprint,
+            Person person,
+
             UserRepository userRepository,
-            Func<IEnumerable<Issue>,IssueStatisticsViewModel> issueStatisticsFactory)
+            IssueRepository issueRepository,
+            Func<IEnumerable<Issue>, IssueStatisticsViewModel> issueStatisticsFactory
+            )
+
         {
             _userRepository = userRepository;
+            this.issueRepository = issueRepository;
             _issueStatisticsFactory = issueStatisticsFactory;
             Person = person;
-            Issues = new ObservableCollection<Issue>();
-            WorkItems = new ObservableCollection<WorkItem>();
-            
+
+            issueRepository.SearchObservable(project, sprint)
+                        ,
+                           .Subscribe(r =>
+                                    IssueStatistics = issueStatisticsFactory(r.Where(issue =>issue.Assignee != null && issue.Assignee.Login == person.Login))
+                            );
+
         }
 
         public string IconText
         {
-            get { return  new string(Person.Name.Where(char.IsUpper).ToArray());}
+            get { return  new string(Person.Name.Where(char.IsUpper).ToArray()); }
         }
 
         public Brush IconBrush
@@ -66,22 +79,8 @@ namespace YoutrackBoard
                 return this.GetColor(Person.Name);
             }
         }
-
-        public string Avatar
-        {
-            get { return _avatar; }
-            set
-            {
-                if (value == _avatar) return;
-                _avatar = value;
-                NotifyOfPropertyChange(() => Avatar);
-            }
-        }
-
+        
         public Person Person { get; set; }
-
-        public ObservableCollection<Issue> Issues { get; private set; }
-        public ObservableCollection<WorkItem> WorkItems { get; private set; }
 
         public IssueStatisticsViewModel IssueStatistics
         {
@@ -94,24 +93,5 @@ namespace YoutrackBoard
             }
         }
 
-        public void SetIssues(Issue[] issues)
-        {
-            Issues.Clear();
-            foreach (var issue in issues)
-            {
-                Issues.Add(issue);
-            }
-            IssueStatistics = _issueStatisticsFactory(issues);
-        }
-
-        public void SetWorkItems(WorkItem[] workItems)
-        {
-
-            WorkItems.Clear();
-            foreach (var workItem in workItems)
-            {
-                WorkItems.Add(workItem);
-            }
-        }
     }
 }

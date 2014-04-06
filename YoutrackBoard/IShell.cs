@@ -7,6 +7,6 @@ namespace YoutrackBoard
     interface IShell
     {
         void Back();
-        void Navigate(Screen screen);
+        void Navigate(object screen);
     }
 }

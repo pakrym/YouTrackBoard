@@ -16,5 +16,14 @@
         <controls:TransitioningContentControl Name="ActiveItem" Transition="Right" Grid.Row="1" />
     </Grid>
 
+    <controls:MetroWindow.Flyouts>
+        <controls:FlyoutsControl>
+            <controls:Flyout Header="Flyout" Position="Right" Width="200" Visibility="{Binding FlyoutVisible}">
+                <ContentControl Name="FlyoutItem"></ContentControl>
+                <!-- Your custom content here -->
+            </controls:Flyout>
+        </controls:FlyoutsControl>
+
+    </controls:MetroWindow.Flyouts>
 
 </controls:MetroWindow>

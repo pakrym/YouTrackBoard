@@ -1,16 +1,146 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace YoutrackBoard
 {
     using System;
+    using System.Configuration;
+    using System.Linq;
+    using System.Net;
     using System.Reactive.Linq;
-    using System.Threading;
+    using System.Threading.Tasks;
 
-    class IssueRepository: IRepository
+    using SharpSvn;
+    using SharpSvn.Implementation;
+    using SharpSvn.Security;
+
+    class SvnCommitRepository : RepositoryBase
     {
+        public SvnCommitRepository()
+        {
+            this.RepositoryUri = new Uri(ConfigurationManager.AppSettings["svn"]);
+            this.Login = ConfigurationManager.AppSettings["svn.login"];
+            this.Password = ConfigurationManager.AppSettings["svn.password"];
+            this.Mappings = ConfigurationManager.AppSettings["svn.mapping"].Split(new [] {';'}, StringSplitOptions.RemoveEmptyEntries).Select(
+                s =>
+                    {
+                        var parts = s.Split(new [] {'='}, StringSplitOptions.RemoveEmptyEntries);
+                        return new { SvnName = parts[0], Name = parts[1] };
+                    }).ToDictionary(m=>m.SvnName, m=>m.Name);
+        }
 
-        public event EventHandler Refresh;
+        public Dictionary<string, string> Mappings { get; set; }
+
+        internal string MapName(string name)
+        {
+            string newName;
+            if (Mappings.TryGetValue(name, out newName))
+            {
+                return newName;
+            };
+            return name;
+        }
+
+        public string Login { get; set; }
+
+        public string Password { get; set; }
+
+        public Uri RepositoryUri { get; set; }
+
+
+        protected SvnClient CreateClient()
+        {
+            var a = new SvnClient();
+            a.Authentication.Clear(); 
+            a.Authentication.DefaultCredentials = new System.Net.NetworkCredential(Login,Password);
+            a.Authentication.SslServerTrustHandlers += delegate(object sender, SvnSslServerTrustEventArgs e)
+            {
+                e.AcceptedFailures = e.Failures;
+                e.Save = true; // Save acceptance to authentication store
+            };
+            return a;
+        }
+        public IEnumerable<SvnCommit> ListCommits(TimeSpan span)
+        {
+            using (var a = this.CreateClient())
+            {
+                var results = new List<SvnCommit>();
+                var arg = new SvnLogArgs()
+                              {
+                                  RetrieveAllProperties = true,
+                                  RetrieveChangedPaths = true,
+                                  Range = new SvnRevisionRange(new SvnRevision(DateTime.Now - span), new SvnRevision(DateTime.Now))
+                              };
+                
+                a.Log(
+                    this.RepositoryUri,
+                        arg,
+                        (sender, args) => results.Add(new SvnCommit()
+                                                          {
+                                                              Revision = args.Revision,
+                                                              LogMessage = args.LogMessage.Replace("\r", "").Replace("\n", " "),
+                                                              Author = MapName(args.Author),
+                                                              Root = CommonPrefix(args.ChangedPaths.Select(p=>p.Path).ToArray()),
+                                                              FilesChanged = args.ChangedPaths.Count
+                                                          })
+
+
+                    );
+
+                return results;
+            }
+           
+        }
+
+        private static string CommonPrefix(string[] ss)
+        {
+            if (ss.Length == 0)
+            {
+                return "";
+            }
+
+            if (ss.Length == 1)
+            {
+                return ss[0];
+            }
+
+            int prefixLength = 0;
+
+            foreach (char c in ss[0])
+            {
+                foreach (string s in ss)
+                {
+                    if (s.Length <= prefixLength || s[prefixLength] != c)
+                    {
+                        return ss[0].Substring(0, prefixLength);
+                    }
+                }
+                prefixLength++;
+            }
+
+            return ss[0]; // all strings identical
+        }
+
+        public IObservable<IEnumerable<SvnCommit>> ListCommitsObservable(TimeSpan span)
+        {
+            return this.CacheCallObservable(() => this.ListCommits(span));
+        }
+    }
+
+    internal class SvnCommit
+    {
+        public string LogMessage { get; set; }
+
+        public long Revision { get; set; }
+
+        public string Author { get; set; }
+
+        public string Root { get; set; }
+
+        public int FilesChanged { get; set; }
+    }
+
+    class IssueRepository: RepositoryBase
+    {
 
         private readonly YouTrackClientFactory youTrackClientFactory;
 
@@ -35,104 +165,15 @@ namespace YoutrackBoard
         }
 
 
-        public void RefreshData()
-        {
-            if (Refresh != null)
-            {
-                Refresh(this, EventArgs.Empty);
-            }
-        }
-
         public IObservable<List<Issue>> SearchObservable(Project project, Sprint sprint)
         {
-            return TaskObservable.Create(() => this.Search(project, sprint), this);
+            return this.CacheCallObservable(() => this.Search(project, sprint));
         }
 
 
         public IObservable<List<WorkItem>> GetWorkItemsObservable(Issue issue)
         {
-            return TaskObservable.Create(() => this.GetWorkItems(issue), this);
+            return this.CacheCallObservable(() => this.GetWorkItems(issue));
         }
     }
-
-    internal interface IRepository
-    {
-        event EventHandler Refresh;
-    }
-
-    internal sealed class TaskObservable
-    {
-        public static IObservable<T> Create<T>(Func<T> func, IRepository issueRepository)
-        {
-            return new TaskObservable<T>(func,issueRepository);
-        }
-    }
-    internal sealed class TaskObservable<TResult> : IObservable<TResult>
-    {
-        private readonly Func<TResult> func;
-        private readonly IRepository repository;
-
-        
-        public TaskObservable(Func<TResult> func, IRepository repository)
-        {
-            this.func = func;
-            this.repository = repository;
-        }
-
-        public IDisposable Subscribe(IObserver<TResult> observer)
-        {
-
-            EventHandler run = (s, e) => this.Run(observer);
-
-            repository.Refresh += run;
-            var cts = this.Run(observer);
-
-            return new CancelOnDispose { Source = cts, Repository = repository, Handler = run };
-        }
-
-        private CancellationTokenSource Run(IObserver<TResult> observer)
-        {
-            var cts = new CancellationTokenSource();
-            var task = new Task<TResult>(this.func);
-
-            task.ContinueWith(
-                t =>
-                    {
-                        switch (t.Status)
-                        {
-                            case TaskStatus.RanToCompletion:
-                                observer.OnNext(task.Result);
-                                break;
-                            case TaskStatus.Faulted:
-                                observer.OnError(task.Exception);
-                                break;
-                            case TaskStatus.Canceled:
-                                observer.OnError(new TaskCanceledException(t));
-                                break;
-                        }
-                    },
-                cts.Token);
-            task.Start();
-            return cts;
-        }
-
-        private class CancelOnDispose : IDisposable
-        {
-            internal CancellationTokenSource Source;
-            internal IRepository Repository;
-            internal EventHandler Handler;
-
-            #region IDisposable Members
-
-            void IDisposable.Dispose()
-            {
-                Source.Cancel();
-                Repository.Refresh -= this.Handler;
-            }
-
-            #endregion
-        }
-
-    }
-
 }

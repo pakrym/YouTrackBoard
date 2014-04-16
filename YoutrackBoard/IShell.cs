@@ -8,5 +8,7 @@ namespace YoutrackBoard
     {
         void Back();
         void Navigate(object screen);
+
+        void ShowFlyout(object flyout);
     }
 }

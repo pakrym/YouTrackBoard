@@ -6,20 +6,34 @@
              xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
              mc:Ignorable="d" 
               d:DesignWidth="300">
+    <UserControl.Resources>
+        <Style x:Key="PersonDetailsHeader" TargetType="TextBlock" >
+            <Setter Property="FontSize" Value="18"></Setter>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition  />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Border Height="48" Width="48" Background="{Binding IconBrush}">
             <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="25" Name="IconText"></TextBlock>
         </Border>
-        <TextBlock Text="{Binding Person.Name}" FontSize="20" Grid.Column="1" Grid.Row="0" Margin="10,0,0,0" VerticalAlignment="Center" ></TextBlock>
-        <ContentControl Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Name="IssueStatistics"></ContentControl>
+        <TextBlock Text="{Binding Person.Name}" FontSize="20" Grid.Column="1"  Grid.Row="0" Margin="10,0,0,0" VerticalAlignment="Center" ></TextBlock>
+        <TextBlock FontSize="20" Grid.Column="2" Grid.Row="0" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="LightGray" >
+           <Run>(</Run>
+            <Run Text="{Binding Person.Login}"></Run>
+            <Run>)</Run>
+        </TextBlock>
+        
+        <ContentControl Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" Name="IssueStatistics"></ContentControl>
+        <ContentControl Grid.Row="2" Grid.ColumnSpan="3" Grid.Column="0" Name="Commits"></ContentControl>
         
         
     </Grid>

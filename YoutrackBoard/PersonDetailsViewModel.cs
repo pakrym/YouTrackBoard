@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+
 using Caliburn.Micro;
 
 namespace YoutrackBoard
 {
     using System.Linq;
-    using System.Reactive.Linq;
+    using System.Reactive.Concurrency;
+    using System.Threading;
     using System.Windows.Media;
+
+    using SharpSvn;
 
     internal class PersonDetailsViewModel:PropertyChangedBase
     {
@@ -16,6 +19,7 @@ namespace YoutrackBoard
         private readonly Func<IEnumerable<Issue>, IssueStatisticsViewModel> _issueStatisticsFactory;
         private string _avatar;
         private IssueStatisticsViewModel _issueStatistics;
+        private CommitsViewModel commits;
 
         static PersonDetailsViewModel()
         {
@@ -50,7 +54,8 @@ namespace YoutrackBoard
 
             UserRepository userRepository,
             IssueRepository issueRepository,
-            Func<IEnumerable<Issue>, IssueStatisticsViewModel> issueStatisticsFactory
+            Func<IEnumerable<Issue>, IssueStatisticsViewModel> issueStatisticsFactory,
+            Func<Sprint, Person, CommitsViewModel> commitsFactory
             )
 
         {
@@ -60,11 +65,11 @@ namespace YoutrackBoard
             Person = person;
 
             issueRepository.SearchObservable(project, sprint)
-                        ,
                            .Subscribe(r =>
                                     IssueStatistics = issueStatisticsFactory(r.Where(issue =>issue.Assignee != null && issue.Assignee.Login == person.Login))
                             );
 
+            Commits = commitsFactory(sprint, person);
         }
 
         public string IconText
@@ -93,5 +98,21 @@ namespace YoutrackBoard
             }
         }
 
+        public CommitsViewModel Commits
+        {
+            get
+            {
+                return this.commits;
+            }
+            set
+            {
+                if (Equals(value, this.commits))
+                {
+                    return;
+                }
+                this.commits = value;
+                this.NotifyOfPropertyChange(() => this.Commits);
+            }
+        }
     }
 }

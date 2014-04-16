@@ -38,5 +38,7 @@ namespace YoutrackBoard
         public ObservableCollection<PersonDetailsViewModel> PersonDetails { get; set; }
 
         public string Name { get; set; }
+
+        public 
     }
 }

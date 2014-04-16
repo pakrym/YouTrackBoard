@@ -21,7 +21,7 @@ namespace YoutrackBoard
 
         public static string ToReadableString(this TimeSpan span)
         {
-            span = new TimeSpan(span.Days * 24 / 8 + span.Hours / 8, span.Hours % 8, span.Minutes);
+            span = new TimeSpan(span.Days * 24 / 8 + span.Hours / 8, span.Hours % 8, span.Minutes, 0);
             string formatted = string.Format("{0}{1}{2}",
                 (span.Duration().Hours / 8) > 0 ? string.Format("{0:0}d", span.Hours/8) : string.Empty,
                 span.Duration().Hours > 0 ? string.Format("{0:0}h", span.Hours) : string.Empty,

@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <StackPanel>
-        <TextBlock Visibility="{Binding Visible}" Text="{Binding Name}" FontSize="18"></TextBlock>
-        <ItemsControl Name="Issues" Margin="5"></ItemsControl>
+        <TextBlock Visibility="{Binding Visible}" Text="{Binding Name}" Style="{DynamicResource PersonDetailsHeader}"></TextBlock>
+        <ItemsControl Name="Issues" Style="{DynamicResource PersonDetailsPanel}"></ItemsControl>
     </StackPanel>
 </UserControl>

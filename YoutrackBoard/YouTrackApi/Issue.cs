@@ -50,7 +50,7 @@ namespace YoutrackBoard
 
         public TimeSpan TimeSpent
         {
-            get { return TimeSpan.FromMinutes(GetFieldAsFirst<int>("Spent Time")); }
+            get { return TimeSpan.FromMinutes(GetFieldAsFirst<int>("Spent time")); }
         }
 
         private T GetFieldAs<T>(string name) 

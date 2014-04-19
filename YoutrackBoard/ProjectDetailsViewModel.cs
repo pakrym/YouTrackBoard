@@ -39,6 +39,6 @@ namespace YoutrackBoard
 
         public string Name { get; set; }
 
-        public 
+        
     }
 }

@@ -8,11 +8,6 @@ namespace YoutrackBoard
 
     using Caliburn.Micro;
 
-    internal class funcitonfac
-    {
-        
-    }
-
     internal class CommitsViewModel: PropertyChangedBase
     {
         private Visibility showHeader;
